@@ -83,13 +83,14 @@ def find_best_match_student(students, team):
     temp_team = team.copy()
     temp_team.append(student)
 
-    if not validate_team_constraints(team):
+    if not validate_team_constraints(temp_team):
       continue
 
     diversity_score = calculate_diversity_score(temp_team)
 
     if diversity_score > best_score:
       best_match = student
+      best_score = diversity_score
 
   return best_match
 
