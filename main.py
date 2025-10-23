@@ -83,7 +83,7 @@ def find_best_match_student(students, team):
     temp_team = team.copy()
     temp_team.append(student)
 
-    if not validate_team_constraints(team):
+    if not validate_team_constraints(temp_team):
       continue
 
     diversity_score = calculate_diversity_score(temp_team)
@@ -152,7 +152,7 @@ def print_and_get_diversity_info(team, group_number):
   print("Group ", group_number, end=" | ")
   print("Tutorial Group", team[0]['tutorial_group'], end=" | ")
   print("Number of students: ", number_of_students, end=" | ")
-  print("Schools", schools, end=" | ")
+  print("Schools max count: ", get_max_count(schools), end=" | ")
   print("Male: ", number_of_males, end=" | ")
   print("Female: ", number_of_females, end=" | ")
   print("Average GPA: ", avergae_gpa, end=" | ")
