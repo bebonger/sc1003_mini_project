@@ -38,10 +38,30 @@ def read_and_parse_file_content(filepath):
 
   return records
 
+# Calculate dynamic CGPA categories based on percentiles
+def calculate_cgpa_categories(students, team_size=5):
+  # Extract all CGPAs and sort them
+  cgpas = sorted([float(s['cgpa']) for s in students])
+  
+  if not cgpas:
+    return {}
+  
+  # Create percentile-based categories
+  cgpa_to_category = {}
+  num_categories = team_size
+  students_per_category = len(cgpas) / num_categories
+  
+  for i, cgpa in enumerate(cgpas):
+    category = min(int(i / students_per_category), num_categories - 1)
+    cgpa_to_category[cgpa] = category
+  
+  return cgpa_to_category
+
 # This will categorise GPA based on the logic
 # 
-def categorise_gpa(gpa):
-  return round(float(gpa) / 0.2, 2)
+def categorise_gpa(gpa, cgpa_mapping=None):
+  if cgpa_mapping is not None:
+    return cgpa_mapping.get(float(gpa), 0)
 
 def get_max_count(items):
   max_count = 0
@@ -58,23 +78,20 @@ def get_max_count(items):
   
   return max_count
 
-def validate_team_constraints(team):
+def validate_team_constraints(team, cgpa_mapping=None):
   school_count = get_max_count([s['school'] for s in team])
-  # gender_count = get_max_count([s['gender'] for s in team])
-  gpa_cat_count = get_max_count([categorise_gpa(s['cgpa']) for s in team])
+  gpa_cat_count = get_max_count([categorise_gpa(s['cgpa'], cgpa_mapping) for s in team])
 
-  # print("School count: ", school_count, "Gender count: ", gender_count, "GPA count: ", gpa_cat_count)
-  # print(school_count <= 2 and gender_count <= 2 and gpa_cat_count <= 2)
-  return (school_count <= 2)
+  return (school_count <= 2 and gpa_cat_count <= 2)
 
-def calculate_diversity_score(team):
+def calculate_diversity_score(team, cgpa_mapping=None):
   schools = set([s['school'] for s in team ])
-  cgpa    = set([categorise_gpa(s['cgpa']) for s in team])
+  cgpa    = set([categorise_gpa(s['cgpa'], cgpa_mapping) for s in team])
 
   return len(schools) + len(cgpa)
 
 
-def find_best_match_student(students, team):
+def find_best_match_student(students, team, cgpa_mapping=None):
   # Default to a random employee if no best match found
   best_match = random.sample(students, 1)[0]
   best_score = -1
@@ -83,13 +100,14 @@ def find_best_match_student(students, team):
     temp_team = team.copy()
     temp_team.append(student)
 
-    if not validate_team_constraints(temp_team):
+    if not validate_team_constraints(temp_team, cgpa_mapping):
       continue
 
-    diversity_score = calculate_diversity_score(temp_team)
+    diversity_score = calculate_diversity_score(temp_team, cgpa_mapping)
 
     if diversity_score > best_score:
       best_match = student
+      best_score = diversity_score
 
   return best_match
 
@@ -99,6 +117,9 @@ def split_project_teams(students, team_offset=1, team_size=5):
 
   num_teams = math.ceil(students_count / team_size)
   teams = {}
+  
+  # Calculate CGPA categories based on team size
+  cgpa_mapping = calculate_cgpa_categories(students, team_size)
 
   males = []
   females = []
@@ -132,7 +153,7 @@ def split_project_teams(students, team_offset=1, team_size=5):
         gender_selection = (i + starting_index + 1) % 2
         selected_students = available_students[gender_selection]
 
-      student = find_best_match_student(selected_students, teams[group_number])
+      student = find_best_match_student(selected_students, teams[group_number], cgpa_mapping)
       teams[group_number].append(student)
       selected_students.remove(student)
 
