@@ -78,17 +78,12 @@ def get_max_count(items):
   
   return max_count
 
-def validate_team_constraints(team, cgpa_mapping=None):
-  school_count = get_max_count([s['school'] for s in team])
-  gpa_cat_count = get_max_count([categorise_gpa(s['cgpa'], cgpa_mapping) for s in team])
-
-  return (school_count <= 2 and gpa_cat_count <= 2)
-
 def calculate_diversity_score(team, cgpa_mapping=None):
   schools = set([s['school'] for s in team ])
+  genders = set([s['gender'] for s in team])
   cgpa    = set([categorise_gpa(s['cgpa'], cgpa_mapping) for s in team])
 
-  return len(schools) + len(cgpa)
+  return len(schools) + len(cgpa) + len(genders)
 
 
 def find_best_match_student(students, team, cgpa_mapping=None):
@@ -99,9 +94,6 @@ def find_best_match_student(students, team, cgpa_mapping=None):
   for student in students:
     temp_team = team.copy()
     temp_team.append(student)
-
-    if not validate_team_constraints(temp_team, cgpa_mapping):
-      continue
 
     diversity_score = calculate_diversity_score(temp_team, cgpa_mapping)
 
