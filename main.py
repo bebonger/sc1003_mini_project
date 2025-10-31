@@ -126,6 +126,7 @@ def split_project_teams(students, team_offset=1, team_size=5):
     males.copy(),
     females.copy()
   ]
+    
 
   for i in range(num_teams):
     group_number = i + team_offset
@@ -134,25 +135,47 @@ def split_project_teams(students, team_offset=1, team_size=5):
 
     # If one gender is more than the other
     # We start with the one with the most students
-    starting_index = 0 if (len(available_students[0]) > len(available_students[1])) else 1
+    # starting_index = 0 if (len(available_students[0]) > len(available_students[1])) else 1
 
-    for i in range(team_size):
-      gender_selection = (i + starting_index) % 2 # 0, 1 (mod2)
+    proportions = distribute_students_proportions([males, females], 'gender', team_size)
 
-      selected_students = available_students[gender_selection]
+    for gender, size in proportions.items():
+      selected_students = males if gender == 'Male' else females
 
-      if not selected_students:
-        gender_selection = (i + starting_index + 1) % 2
-        selected_students = available_students[gender_selection]
+      for _ in range(size):
+        student = find_best_match_student(selected_students, teams[group_number], cgpa_mapping)
+        teams[group_number].append(student)
+        selected_students.remove(student)
 
-      student = find_best_match_student(selected_students, teams[group_number], cgpa_mapping)
-      teams[group_number].append(student)
-      selected_students.remove(student)
-
-      if not available_students[0] and not available_students[1]:
+      if not males and not females:
         break
 
   return teams, group_number
+
+def distribute_students_proportions(student_by_categories, category, size):
+  total_count = sum([len(cat) for cat in student_by_categories])
+
+  result = {}
+
+  remaining_allocation = size
+
+  for index, students in enumerate(student_by_categories):
+    
+    if not students:
+      continue
+
+    cat = students[0][category]
+
+    if index == len(student_by_categories) - 1:
+      result[cat] = remaining_allocation
+      break
+    
+    proportion = (len(students) / total_count) * size
+    proportion = round(proportion)
+    remaining_allocation -= proportion
+    result[cat] = proportion
+  
+  return result
 
 def print_and_get_diversity_info(team, group_number):
   avergae_gpa = sum([float(s['cgpa']) for s in team]) / len(team)
