@@ -58,11 +58,11 @@ def calculate_cgpa_categories(students, team_size=5):
   return cgpa_to_category
 
 # This will categorise GPA based on the logic
-# 
 def categorise_gpa(gpa, cgpa_mapping=None):
   if cgpa_mapping is not None:
     return cgpa_mapping.get(float(gpa), 0)
 
+# Helper method to get maximum count for the similar items
 def get_max_count(items):
   max_count = 0
   uniq_items = set(items)
@@ -121,22 +121,13 @@ def split_project_teams(students, team_offset=1, team_size=5):
       males.append(student)
     else:
       females.append(student)
-
-  available_students = [
-    males.copy(),
-    females.copy()
-  ]
-    
-
+      
   for i in range(num_teams):
     group_number = i + team_offset
 
     teams[group_number] = []
 
-    # If one gender is more than the other
-    # We start with the one with the most students
-    # starting_index = 0 if (len(available_students[0]) > len(available_students[1])) else 1
-
+    # We assign students based on the gender proportion so that it's evenly distributed
     proportions = distribute_students_proportions([males, females], 'gender', team_size)
 
     for gender, size in proportions.items():
