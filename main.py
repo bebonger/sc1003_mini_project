@@ -177,28 +177,47 @@ def distribute_students_proportions(student_by_categories, category, size):
   
   return result
 
-def print_and_get_diversity_info(team, group_number):
-  avergae_gpa = sum([float(s['cgpa']) for s in team]) / len(team)
-  number_of_students = len(team)
-  number_of_males = len([s for s in team if s['gender'] == 'Male'])
-  number_of_females = len([s for s in team if s['gender'] == 'Female'])
-  diversity_score   = calculate_diversity_score(team)
-  schools = [s['school'] for s in team ]
+def print_and_get_diversity_info(teams):
 
-  print("Group ", group_number, end=" | ")
-  print("Tutorial Group", team[0]['tutorial_group'], end=" | ")
-  print("Number of students: ", number_of_students, end=" | ")
-  print("Schools max count: ", get_max_count(schools), end=" | ")
-  print("Male: ", number_of_males, end=" | ")
-  print("Female: ", number_of_females, end=" | ")
-  print("Average GPA: ", avergae_gpa, end=" | ")
-  print("Diversity Score: ", diversity_score)
+  total_count = 0
+  total_diversity_score = 0
 
-  # if group_number >= 1073:
-  #   for i in team:
-  #     print(i['cgpa'])
+  for group_number in teams:
+    team = teams[group_number]
 
-  return diversity_score
+    avergae_gpa = sum([float(s['cgpa']) for s in team]) / len(team)
+    number_of_students = len(team)
+    number_of_males = len([s for s in team if s['gender'] == 'Male'])
+    number_of_females = len([s for s in team if s['gender'] == 'Female'])
+    diversity_score   = calculate_diversity_score(team)
+    schools = [s['school'] for s in team ]
+
+    total_count += 1
+    total_diversity_score += diversity_score
+
+    print("Group ", group_number, end=" | ")
+    print("Tutorial Group", team[0]['tutorial_group'], end=" | ")
+    print("Number of students: ", number_of_students, end=" | ")
+    print("Schools max count: ", get_max_count(schools), end=" | ")
+    print("Male: ", number_of_males, end=" | ")
+    print("Female: ", number_of_females, end=" | ")
+    print("Average GPA: ", avergae_gpa, end=" | ")
+    print("Diversity Score: ", diversity_score)
+
+def print_min_max_gpa(records):
+  min_gpa = 5
+  max_gpa = 0
+  for tutorial_group in records:
+    students = records[tutorial_group]
+    for student in students:
+      gpa = float(student['cgpa'])
+      if gpa < min_gpa:
+        min_gpa = gpa
+      if gpa > max_gpa:
+        max_gpa = gpa
+
+  print("Min GPA: ", min_gpa)
+  print("Max GPA: ", max_gpa)
 
 if __name__ == "__main__":
   filepath = "records.csv"
@@ -214,33 +233,5 @@ if __name__ == "__main__":
 
     teams = teams | current_teams
 
-  total_count = 0
-  total_diversity_score = 0
-
-  for group_number in teams:
-    team = teams[group_number]
-    diversity_score = print_and_get_diversity_info(team, group_number)
-
-    total_count += 1
-    total_diversity_score += diversity_score
-
-  # print(f"Average diversity score: %.2f", total_diversity_score / total_count)
-
-  min_gpa = 5
-  max_gpa = 0
-  for tutorial_group in records:
-    students = records[tutorial_group]
-    for student in students:
-      gpa = float(student['cgpa'])
-      if gpa < min_gpa:
-        min_gpa = gpa
-      if gpa > max_gpa:
-        max_gpa = gpa
-
-  print("Min GPA: ", min_gpa)
-  print("Max GPA: ", max_gpa)
-
-    
-
-
-
+  print_and_get_diversity_info(teams)
+  print_min_max_gpa(records)
