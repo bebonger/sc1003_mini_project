@@ -210,6 +210,22 @@ def print_min_max_gpa(records):
   print("Min GPA: ", min_gpa)
   print("Max GPA: ", max_gpa)
 
+def output_to_csv(teams):
+  filepath = "diversified_teams.csv"
+  with open(filepath, "w") as file:
+
+    headers = "Group Number,Tutorial Group,Student ID,School,Name,Gender,CGPA"
+
+    # Write headers of csv file
+    file.write(headers)
+
+    # iterate through teams and write them to the csv file
+    for group_number in teams:
+      team = teams[group_number]
+      for student in team:
+        row_output = f"{group_number},{student['tutorial_group']},{student['student_id']},{student['school']},{student['name']},{student['gender']},{student['cgpa']}\n"
+        file.write(row_output)
+
 if __name__ == "__main__":
   filepath = "records.csv"
   records = read_and_parse_file_content(filepath)
@@ -224,5 +240,6 @@ if __name__ == "__main__":
 
     teams = teams | current_teams
 
-  print_and_get_diversity_info(teams)
-  print_min_max_gpa(records)
+  output_to_csv(teams)
+  # print_and_get_diversity_info(teams)
+  # print_min_max_gpa(records)
