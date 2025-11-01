@@ -214,7 +214,7 @@ def output_to_csv(teams):
   filepath = "diversified_teams.csv"
   with open(filepath, "w") as file:
 
-    headers = "Group Number,Tutorial Group,Student ID,School,Name,Gender,CGPA"
+    headers = "Tutorial Group,Student ID,School,Name,Gender,CGPA,Team Assigned"
 
     # Write headers of csv file
     file.write(headers)
@@ -223,7 +223,7 @@ def output_to_csv(teams):
     for group_number in teams:
       team = teams[group_number]
       for student in team:
-        row_output = f"{group_number},{student['tutorial_group']},{student['student_id']},{student['school']},{student['name']},{student['gender']},{student['cgpa']}\n"
+        row_output = f"{student['tutorial_group']},{student['student_id']},{student['school']},{student['name']},{student['gender']},{student['cgpa'],{group_number}}\n"
         file.write(row_output)
 
 if __name__ == "__main__":
